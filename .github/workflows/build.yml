@@ -53,6 +53,35 @@ jobs:
             ~/go/pkg/mod
           key: cache-${{ github.sha }}-${{ github.run_number }}
 
+  release:
+    needs: check
+    runs-on: ubuntu-latest
+    if: needs.check.outputs.build_needed == 'true'
+    steps:
+      - uses: dev-drprasad/delete-tag-and-release@v1.0
+        with:
+          tag_name: cfdnstls
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          delete_release: true 
+          repo: ${{ github.repository	}}
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+            gh release create "cfdnstls" \
+              --repo="${{ github.repository	}}" \
+              --title="${{ needs.check.outputs.caddyver }}"
+      - run: |
+          {
+            date
+            echo ${{ needs.check.outputs.caddyver }}
+            date +%s
+          } > version.txt
+      - uses: svenstaro/upload-release-action@1beeb572c19a9242f4361f4cee78f8e0d9aec5df # v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: "version.txt"
+          tag: cfdnstls
+
   build:
     strategy:
       matrix:
@@ -88,33 +117,4 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: "caddy-${{ env.GOOS }}-${{ env.GOARCH }}-${{ env.GOAMD64 }}"
-          tag: cfdnstls
-
-  release:
-    needs: check
-    runs-on: ubuntu-latest
-    if: needs.check.outputs.build_needed == 'true'
-    steps:
-      - uses: dev-drprasad/delete-tag-and-release@v1.0
-        with:
-          tag_name: cfdnstls
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          delete_release: true 
-          repo: ${{ github.repository	}}
-      - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-            gh release create "cfdnstls" \
-              --repo="${{ github.repository	}}" \
-              --title="${{ needs.check.outputs.caddyver }}"
-      - run: |
-          {
-            date
-            echo ${{ needs.check.outputs.caddyver }}
-            date +%s
-          } > version.txt
-      - uses: svenstaro/upload-release-action@1beeb572c19a9242f4361f4cee78f8e0d9aec5df # v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: "version.txt"
           tag: cfdnstls
