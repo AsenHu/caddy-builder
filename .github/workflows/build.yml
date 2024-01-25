@@ -65,16 +65,18 @@ jobs:
       - build
       - check-update
     runs-on: ubuntu-latest
+    env:
+      caddyver: ${{ needs.check-update.outputs.caddyver }}
     steps:
       - name: Download singbox
         uses: actions/download-artifact@v4
         with:
           merge-multiple: true
       - run: |
-          echo ${{ needs.check-update.outputs.caddyver }}
+          echo ${{ env.caddyver }}
           {
             date
-            echo ${{ needs.check-update.outputs.caddyver }}
+            echo ${{ env.caddyver }}
             date +%s
           } > version.txt
       - name: Create Release
@@ -88,5 +90,5 @@ jobs:
           files: |
             caddy-*
             version.txt
-          name: ${{ needs.check-update.outputs.caddyver }}
+          name: ${{ env.caddyver }}
           tag_name: cfdnstls
