@@ -5,6 +5,8 @@ permissions:
 
 on:
   push:
+    branches:
+      - main
   schedule:
     - cron: "25 23 * * *"
   workflow_dispatch:
