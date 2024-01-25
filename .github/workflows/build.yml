@@ -53,8 +53,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "caddy-$GOOS-$GOARCH-${{ matrix.goamd }}"
-          path: "caddy-$GOOS-$GOARCH-${{ matrix.goamd }}"
+          name: caddy-*
+          path: caddy-*
 
   release:
     needs:
