@@ -106,7 +106,7 @@ jobs:
         run: |
             gh release create "cfdnstls" \
               --repo="${{ github.repository	}}" \
-              --title="cfdnstls"
+              --title="${{ needs.check.outputs.caddyver }}"
       - run: |
           {
             date
