@@ -89,8 +89,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: "caddy-${{ env.GOOS }}-${{ env.GOARCH }}-${{ env.GOAMD64 }}"
           tag: cfdnstls
-          overwrite: true
-          file_glob: true
 
   release:
     needs: check
@@ -120,5 +118,3 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: "version.txt"
           tag: cfdnstls
-          overwrite: true
-          file_glob: true
