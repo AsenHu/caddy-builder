@@ -1,5 +1,8 @@
 name: build
 
+permissions:
+  contents: write
+
 on:
   push:
   schedule:
@@ -73,12 +76,13 @@ jobs:
             date +%s
           } > version.txt
       - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: softprops/action-gh-release@v1
         with:
-          title: latest
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: cfdnstls
+          body: github.com/caddy-dns/cloudflare
+          draft: false
+          prerelease: false
           files: |
             caddy-*
             version.txt
-          prerelease: false
+          name: $(date +%Y%m%d%H%M%S)
+          tag_name: cfdnstls
