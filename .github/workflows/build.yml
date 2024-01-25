@@ -71,6 +71,7 @@ jobs:
         with:
           merge-multiple: true
       - run: |
+          echo ${{ needs.check-update.outputs.caddyver }}
           {
             date
             echo ${{ needs.check-update.outputs.caddyver }}
