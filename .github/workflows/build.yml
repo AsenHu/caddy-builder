@@ -26,8 +26,6 @@ jobs:
             echo "caddy is not the latest version, start building"
             echo "build_needed=true" >> $GITHUB_OUTPUT
           fi
-          echo "$latest_CADDY_VERSION"
-          echo "caddyver=$latest_CADDY_VERSION" >> $GITHUB_OUTPUT
 
   build:
     strategy:
@@ -63,20 +61,18 @@ jobs:
   release:
     needs:
       - build
-      - check-update
     runs-on: ubuntu-latest
-    env:
-      caddyver: ${{ needs.check-update.outputs.caddyver }}
     steps:
       - name: Download singbox
         uses: actions/download-artifact@v4
         with:
           merge-multiple: true
       - run: |
-          echo ${{ env.caddyver }}
+          caddyver=$(./caddy-linux-amd64-v1 version)
+          echo "caddyver=$caddyver" >> $GITHUB_ENV
           {
             date
-            echo ${{ env.caddyver }}
+            echo "$caddyver"
             date +%s
           } > version.txt
       - name: Create Release
@@ -84,7 +80,7 @@ jobs:
         with:
           body: |
             mods:
-              github.com/caddy-dns/cloudflare
+            github.com/caddy-dns/cloudflare
           draft: false
           prerelease: false
           files: |
