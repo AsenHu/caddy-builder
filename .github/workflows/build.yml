@@ -42,7 +42,7 @@ jobs:
       CGO_ENABLED: 0
     runs-on: ubuntu-latest
     needs: check-update
-    if: ${{ needs.check-update.outputs.build_needed }} == 'true'
+    if: ${{ needs.check-update.outputs.build_needed }} == "true"
     steps:
       - name: Setup Go
         uses: actions/setup-go@v5
