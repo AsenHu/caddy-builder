@@ -10,8 +10,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-update:
+  check:
     runs-on: ubuntu-latest
+    outputs:
+      caddyver: ${{ steps.check.outputs.caddyver }}
+      build_needed: ${{ steps.check.outputs.build_needed }}
     steps:
       - name: check update
         id: check
@@ -27,7 +30,6 @@ jobs:
             echo "build_needed=true" >> $GITHUB_OUTPUT
           fi
           echo "caddyver=$latest_CADDY_VERSION" >> $GITHUB_OUTPUT
-
   build:
     strategy:
       matrix:
@@ -42,9 +44,10 @@ jobs:
       GOAMD64: ${{ matrix.goamd }}
       CGO_ENABLED: 0
     runs-on: ubuntu-latest
-    needs: check-update
-    if: needs.check-update.outputs.build_needed == 'true'
+    needs: check
+    if: needs.check.outputs.build_needed == 'true'
     steps:
+      - run: echo ${{ needs.check.outputs.build_needed }}; echo ${{ needs.check.outputs.caddyver }}
       - name: Setup Go
         uses: actions/setup-go@v5
       - name: build
