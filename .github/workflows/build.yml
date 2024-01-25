@@ -26,6 +26,7 @@ jobs:
             echo "caddy is not the latest version, start building"
             echo "build_needed=true" >> $GITHUB_OUTPUT
           fi
+          echo "caddyver=$latest_CADDY_VERSION" >> $GITHUB_OUTPUT
 
   build:
     strategy:
@@ -68,10 +69,9 @@ jobs:
         with:
           merge-multiple: true
       - run: |
-          echo "caddyver=$caddyver" >> $GITHUB_ENV
           {
             date
-            echo "$caddyver"
+            echo ${{ needs.check-update.outputs.caddyver }}
             date +%s
           } > version.txt
       - name: Create Release
@@ -85,5 +85,5 @@ jobs:
           files: |
             caddy-*
             version.txt
-          name: ${{ env.caddyver }}
+          name: ${{ needs.check-update.outputs.caddyver }}
           tag_name: cfdnstls
