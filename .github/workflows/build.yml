@@ -1,0 +1,93 @@
+name: build
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check update
+        id: check
+        run: |
+          latest_CADDY_VERSION=$(curl https://api.github.com/repos/caddyserver/caddy/releases/latest -L -q --retry 5 --retry-delay 10 --retry-max-time 60 | jq -r ".tag_name")
+          local_CADDY_VERSION=$(curl https://github.com/AsenHu/caddy-builder/releases/download/latest/version.txt -L -q --retry 5 --retry-delay 10 --retry-max-time 60 | sed -n '2p')
+          if [ "$latest_CADDY_VERSION" == "$local_CADDY_VERSION" ]
+          then
+            echo "caddy is already the latest version $latest_CADDY_VERSION"
+            echo "::set-output name=build_needed::false"
+          else
+            echo "caddy is not the latest version, start building"
+            echo "::set-output name=build_needed::true"
+          fi
+          echo "::set-output name=latest_CADDY_VERSION::$latest_CADDY_VERSION"
+    outputs:
+      build_needed: ${{ steps.check.outputs.build_needed }}
+      latest_CADDY_VERSION: ${{ steps.check.outputs.latest_CADDY_VERSION }}
+
+  build:
+    strategy:
+      matrix:
+        include:
+          - name: linux-amd64-v1
+            goamd64: v1
+          - name: linux-amd64-v2
+            goamd64: v2
+          - name: linux-amd64-v3
+            goamd64: v3
+          - name: linux-amd64-v4
+            goamd64: v4
+    env:
+      GOOS: linux
+      GOARCH: amd64
+      GOAMD64: ${{ matrix.goamd64 }}
+      CGO_ENABLED: 0
+    runs-on: ubuntu-latest
+    needs: check-update
+    if: needs.check-update.outputs.build_needed == 'true'
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v5
+      - name: install xcaddy
+        run: |
+          apt install -y debian-keyring debian-archive-keyring apt-transport-https
+          curl -1sLf 'https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg
+          curl -1sLf 'https://dl.cloudsmith.io/public/caddy/xcaddy/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-xcaddy.list
+          apt update
+          apt install xcaddy -y
+      - name: build
+        run : |
+          xcaddy build --with github.com/caddy-dns/cloudflare
+          mv caddy caddy-${{ matrix.name }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: caddy-${{ matrix.name }}
+          path: caddy-${{ matrix.name }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download singbox
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - run: |
+          {
+            date
+            echo ${{ needs.check-update.outputs.latest_CADDY_VERSION }}
+            date +%s
+          } > version.txt
+      - name: Create Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          title: latest
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: caddy-dns/cloudflare
+          files: |
+            caddy-*
+            version.txt
+          prerelease: false
