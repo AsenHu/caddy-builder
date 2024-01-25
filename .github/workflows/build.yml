@@ -55,6 +55,8 @@ jobs:
         run : |
           curl https://raw.githubusercontent.com/AsenHu/caddy-builder/master/cfAPI.go -o main.go -L -q --retry 5 --retry-delay 10 --retry-max-time 60
           go mod init caddy
+          go get -d -v github.com/caddyserver/caddy/v2 github.com/caddy-dns/cloudflare github.com/caddyserver/caddy/v2
+          go mod tidy -e
           go build
           mv caddy caddy-${{ matrix.name }}
       - name: Upload artifact
