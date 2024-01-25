@@ -68,6 +68,7 @@ jobs:
         with:
           merge-multiple: true
       - run: |
+          chmod +x caddy-*
           caddyver=$(./caddy-linux-amd64-v1 version)
           echo "caddyver=$caddyver" >> $GITHUB_ENV
           {
