@@ -1,0 +1,122 @@
+name: build
+
+permissions:
+  contents: write
+
+on:
+  push:
+  schedule:
+    - cron: "25 23 * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      build_needed: ${{ steps.check.outputs.build_needed }}
+      caddyver: ${{ steps.check.outputs.caddyver }}
+    steps:
+      - name: check update
+        id: check
+        run: |
+          curl(){
+            $(type -P curl) "$@" -L -q --retry 5 --retry-delay 10 --retry-max-time 60
+          }
+          latest_CADDY_VERSION=$(curl https://api.github.com/repos/caddyserver/caddy/releases/latest  | jq -r ".tag_name")
+          local_CADDY_VERSION=$(curl https://github.com/$GITHUB_REPOSITORY/releases/download/cfdnstls/version.txt | sed -n '2p')
+          if [ "$latest_CADDY_VERSION" == "$local_CADDY_VERSION" ]
+          then
+            echo "caddy is already the latest version $latest_CADDY_VERSION"
+            echo "build_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "caddy is not the latest version, start building"
+            echo "build_needed=true" >> $GITHUB_OUTPUT
+          fi
+          echo "caddyver=$latest_CADDY_VERSION" >> $GITHUB_OUTPUT
+
+  cache:
+    needs: check
+    runs-on: ubuntu-latest
+    if: needs.check.outputs.build_needed == 'true'
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        with:
+          go-version: 'stable'
+          check-latest: true
+      - run: go mod tidy -e
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+          key: cache-${{ github.sha }}-${{ github.run_number }}
+
+  build:
+    strategy:
+      matrix:
+        goamd: [ v1, v2, v3, v4 ]
+    env:
+      GOOS: linux
+      GOARCH: amd64
+      GOAMD64: ${{ matrix.goamd }}
+      CGO_ENABLED: 0
+    runs-on: ubuntu-latest
+    needs: [ cache, release ]
+    if: needs.check.outputs.build_needed == 'true'
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+          key: cache-
+      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        with:
+          go-version: 'stable'
+          check-latest: true
+      - name: build
+        run : |
+          go build -o "caddy-$GOOS-$GOARCH-${{ matrix.goamd }}"
+      - name: Upload artifact
+        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595 # v4
+        with:
+          name: "caddy-${{ env.GOOS }}-${{ env.GOARCH }}-${{ env.GOAMD64 }}"
+          path: "caddy-${{ env.GOOS }}-${{ env.GOARCH }}-${{ env.GOAMD64 }}"
+      - uses: svenstaro/upload-release-action@1beeb572c19a9242f4361f4cee78f8e0d9aec5df # v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: "caddy-${{ env.GOOS }}-${{ env.GOARCH }}-${{ env.GOAMD64 }}"
+          tag: cfdnstls
+          overwrite: true
+          file_glob: true
+
+  release:
+    needs: check
+    runs-on: ubuntu-latest
+    if: needs.check.outputs.build_needed == 'true'
+    steps:
+      - uses: dev-drprasad/delete-tag-and-release@v1.0
+        with:
+          tag_name: cfdnstls
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          delete_release: true 
+          repo: ${{ github.repository	}}
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+            gh release create "cfdnstls" \
+              --repo="${{ github.repository	}}" \
+              --title="cfdnstls"
+      - run: |
+          {
+            date
+            echo ${{ needs.check.outputs.caddyver }}
+            date +%s
+          } > version.txt
+      - uses: svenstaro/upload-release-action@1beeb572c19a9242f4361f4cee78f8e0d9aec5df # v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: "version.txt"
+          tag: cfdnstls
+          overwrite: true
+          file_glob: true
