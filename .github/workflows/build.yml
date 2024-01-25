@@ -26,6 +26,7 @@ jobs:
             echo "caddy is not the latest version, start building"
             echo "build_needed=true" >> $GITHUB_OUTPUT
           fi
+          echo "$latest_CADDY_VERSION"
           echo "caddyver=$latest_CADDY_VERSION" >> $GITHUB_OUTPUT
 
   build:
