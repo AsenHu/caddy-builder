@@ -17,7 +17,7 @@ jobs:
         id: check
         run: |
           latest_CADDY_VERSION=$(curl https://api.github.com/repos/caddyserver/caddy/releases/latest -L -q --retry 5 --retry-delay 10 --retry-max-time 60 | jq -r ".tag_name")
-          local_CADDY_VERSION=$(curl https://github.com/AsenHu/caddy-builder/releases/download/latest/version.txt -L -q --retry 5 --retry-delay 10 --retry-max-time 60 | sed -n '2p')
+          local_CADDY_VERSION=$(curl https://github.com/AsenHu/caddy-builder/releases/download/cfdnstls/version.txt -L -q --retry 5 --retry-delay 10 --retry-max-time 60 | sed -n '2p')
           if [ "$latest_CADDY_VERSION" == "$local_CADDY_VERSION" ]
           then
             echo "caddy is already the latest version $latest_CADDY_VERSION"
