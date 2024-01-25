@@ -26,7 +26,7 @@ jobs:
             echo "caddy is not the latest version, start building"
             echo "build_needed=true" >> $GITHUB_OUTPUT
           fi
-          echo "latest_CADDY_VERSION=$latest_CADDY_VERSION" >> $GITHUB_OUTPUT
+          echo "caddyver=$latest_CADDY_VERSION" >> $GITHUB_OUTPUT
 
   build:
     strategy:
@@ -72,17 +72,19 @@ jobs:
       - run: |
           {
             date
-            echo ${{ needs.check-update.outputs.latest_CADDY_VERSION }}
+            echo ${{ needs.check-update.outputs.caddyver }}
             date +%s
           } > version.txt
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          body: github.com/caddy-dns/cloudflare
+          body: |
+            mods:
+              github.com/caddy-dns/cloudflare
           draft: false
           prerelease: false
           files: |
             caddy-*
             version.txt
-          name: $(date +%Y%m%d%H%M%S)
+          name: ${{ needs.check-update.outputs.caddyver }}
           tag_name: cfdnstls
