@@ -1,10 +1,10 @@
 name: build
 
 on:
-  - push
-  #schedule:
-  #  - cron: "0 0 * * *"
-  #workflow_dispatch:
+  push:
+  schedule:
+    - cron: "25 23 * * *"
+  workflow_dispatch:
 
 jobs:
   check-update:
@@ -18,15 +18,12 @@ jobs:
           if [ "$latest_CADDY_VERSION" == "$local_CADDY_VERSION" ]
           then
             echo "caddy is already the latest version $latest_CADDY_VERSION"
-            echo "::set-output name=build_needed::false"
+            echo "build_needed=false" >> $GITHUB_OUTPUT
           else
             echo "caddy is not the latest version, start building"
-            echo "::set-output name=build_needed::true"
+            echo "build_needed=true" >> $GITHUB_OUTPUT
           fi
-          echo "::set-output name=latest_CADDY_VERSION::$latest_CADDY_VERSION"
-    outputs:
-      build_needed: ${{ steps.check.outputs.build_needed }}
-      latest_CADDY_VERSION: ${{ steps.check.outputs.latest_CADDY_VERSION }}
+          echo "latest_CADDY_VERSION=$latest_CADDY_VERSION" >> $GITHUB_OUTPUT
 
   build:
     strategy:
@@ -47,7 +44,7 @@ jobs:
       CGO_ENABLED: 0
     runs-on: ubuntu-latest
     needs: check-update
-    if: needs.check-update.outputs.build_needed == 'true'
+    if: ${{ needs.check-update.outputs.build_needed }} == 'true'
     steps:
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -84,7 +81,7 @@ jobs:
         with:
           title: latest
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: caddy-dns/cloudflare
+          automatic_release_tag: cfAPI
           files: |
             caddy-*
             version.txt
