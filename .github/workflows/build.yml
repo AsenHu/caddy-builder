@@ -25,7 +25,7 @@ jobs:
             $(type -P curl) "$@" -L -q --retry 5 --retry-delay 10 --retry-max-time 60
           }
           latest_CADDY_VERSION=$(curl https://api.github.com/repos/caddyserver/caddy/releases/latest  | jq -r ".tag_name")
-          local_CADDY_VERSION=$(curl https://github.com/$GITHUB_REPOSITORY/releases/download/cfdnstls/version.txt | sed -n '2p')
+          local_CADDY_VERSION=$(curl https://api.github.com/repos/AsenHu/caddy-builder/releases | jq '.[] | select(.tag_name == "cfdnstls") | .name' -r)
           if [ "$latest_CADDY_VERSION" == "$local_CADDY_VERSION" ]
           then
             echo "caddy is already the latest version $latest_CADDY_VERSION"
@@ -64,23 +64,18 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           delete_release: true 
           repo: ${{ github.repository	}}
+      - run: | 
+          curl https://api.github.com/repos/caddyserver/caddy/releases/latest | jq .body -r | \
+          sed 's#\(\#\)\([0-9]\+\)#\[&\]\(https://github.com/caddyserver/caddy/pull/\2\)#g' | \
+          sed 's#[0-9a-fA-F]\{8\}#\[`&`\]\(https://github.com/caddyserver/caddy/commit/&\)#g' \
+          > changelog.md
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
             gh release create "cfdnstls" \
               --repo="${{ github.repository	}}" \
-              --title="${{ needs.check.outputs.caddyver }}"
-      - run: |
-          {
-            date
-            echo ${{ needs.check.outputs.caddyver }}
-            date +%s
-          } > version.txt
-      - uses: svenstaro/upload-release-action@1beeb572c19a9242f4361f4cee78f8e0d9aec5df # v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: "version.txt"
-          tag: cfdnstls
+              --title="${{ needs.check.outputs.caddyver }}" \
+              -F changelog.md
 
   build:
     strategy:
