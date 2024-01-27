@@ -69,6 +69,12 @@ jobs:
           sed 's#\(\#\)\([0-9]\+\)#\[&\]\(https://github.com/caddyserver/caddy/pull/\2\)#g' | \
           sed 's#[0-9a-fA-F]\{8\}#\[`&`\]\(https://github.com/caddyserver/caddy/commit/&\)#g' \
           > changelog.md
+      - run: |
+          {
+            date
+            echo ${{ needs.check.outputs.caddyver }}
+            date +%s
+          } > version.txt
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -76,6 +82,11 @@ jobs:
               --repo="${{ github.repository	}}" \
               --title="${{ needs.check.outputs.caddyver }}" \
               -F changelog.md
+      - uses: svenstaro/upload-release-action@1beeb572c19a9242f4361f4cee78f8e0d9aec5df # v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: "version.txt"
+          tag: cfdnstls
 
   build:
     strategy:
