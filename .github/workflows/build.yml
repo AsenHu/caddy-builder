@@ -82,7 +82,7 @@ jobs:
               --repo="${{ github.repository	}}" \
               --title="${{ needs.check.outputs.caddyver }}" \
               -F changelog.md
-      - uses: svenstaro/upload-release-action@1beeb572c19a9242f4361f4cee78f8e0d9aec5df # v2
+      - uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: "version.txt"
@@ -119,7 +119,7 @@ jobs:
         with:
           name: "caddy-${{ env.GOOS }}-${{ env.GOARCH }}-${{ env.GOAMD64 }}"
           path: "caddy-${{ env.GOOS }}-${{ env.GOARCH }}-${{ env.GOAMD64 }}"
-      - uses: svenstaro/upload-release-action@1beeb572c19a9242f4361f4cee78f8e0d9aec5df # v2
+      - uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: "caddy-${{ env.GOOS }}-${{ env.GOARCH }}-${{ env.GOAMD64 }}"
