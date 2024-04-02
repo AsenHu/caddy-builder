@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.check.outputs.build_needed == 'true'
     steps:
-      - uses: dev-drprasad/delete-tag-and-release@v1.0
+      - uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
           tag_name: cfdnstls
           github_token: ${{ secrets.GITHUB_TOKEN }}
