@@ -115,7 +115,7 @@ jobs:
         run : |
           go build -o "caddy-$GOOS-$GOARCH-${{ matrix.goamd }}"
       - name: Upload artifact
-        uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8 # v4
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4
         with:
           name: "caddy-${{ env.GOOS }}-${{ env.GOARCH }}-${{ env.GOAMD64 }}"
           path: "caddy-${{ env.GOOS }}-${{ env.GOARCH }}-${{ env.GOAMD64 }}"
