@@ -42,7 +42,7 @@ jobs:
     if: needs.check.outputs.build_needed == 'true'
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5
+      - uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5
         with:
           go-version: 'stable'
           check-latest: true
@@ -107,7 +107,7 @@ jobs:
           path: |
             ~/go/pkg/mod
           key: cache-
-      - uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5
+      - uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5
         with:
           go-version: 'stable'
           check-latest: true
