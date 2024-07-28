@@ -1,0 +1,100 @@
+name: build
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          check-latest: true
+      - name: linux-amd64-v1
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          GOAMD64: v1
+          CGO_ENABLED: 0
+        run: |
+          go build -o caddy -ldflags "-s -w"
+          echo "build finished"
+          xz -ze9v caddy
+          mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
+      - name: delete release
+        run: |
+          tag="$(grep 'github.com/caddyserver/caddy/v2' go.mod | awk '{print $2}')"
+          gh release delete --yes \
+            --repo="${{github.repository}}" \
+            --cleanup-tag "$tag" || echo "Nothing to delete."
+      - name: linux-amd64-v2
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          GOAMD64: v2
+          CGO_ENABLED: 0
+        run: |
+          go build -o caddy -ldflags "-s -w"
+          echo "build finished"
+          xz -ze9v caddy
+          mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
+      - name: linux-amd64-v3
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          GOAMD64: v3
+          CGO_ENABLED: 0
+        run: |
+          go build -o caddy -ldflags "-s -w"
+          echo "build finished"
+          xz -ze9v caddy
+          mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
+      - name: linux-amd64-v4
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          GOAMD64: v4
+          CGO_ENABLED: 0
+        run: |
+          go build -o caddy -ldflags "-s -w"
+          echo "build finished"
+          xz -ze9v caddy
+          mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
+      - name: upload
+        if: env.stop != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="$(grep 'github.com/caddyserver/caddy/v2' go.mod | awk '{print $2}')"
+          gh release create "$tag" \
+            --repo="${{github.repository}}" \
+            --title="$tag" \
+            --generate-notes
+          gh release upload "$tag" "./caddy-linux-amd64-v1.xz" \
+            --clobber \
+            --repo="${{github.repository}}"
+          gh release upload "$tag" "./caddy-linux-amd64-v2.xz" \
+            --clobber \
+            --repo="${{github.repository}}"
+          gh release upload "$tag" "./caddy-linux-amd64-v3.xz" \
+            --clobber \
+            --repo="${{github.repository}}"
+          gh release upload "$tag" "./caddy-linux-amd64-v4.xz" \
+            --clobber \
+            --repo="${{github.repository}}"
+      - name: Approve PR
+        run: |
+          gh pr review --approve
