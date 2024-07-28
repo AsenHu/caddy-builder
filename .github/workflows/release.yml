@@ -51,7 +51,7 @@ jobs:
         run: |
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
-          xz -ze9vvv caddy
+          xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: linux-amd64-v3
         env:
@@ -62,7 +62,7 @@ jobs:
         run: |
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
-          xz -ze9vvvv caddy
+          xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: linux-amd64-v4
         env:
@@ -73,7 +73,7 @@ jobs:
         run: |
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
-          xz -ze9vvvvv caddy
+          xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: upload
         env:
@@ -100,4 +100,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr review --approve || echo "It's not a PR."
+          gh pr review --approve
