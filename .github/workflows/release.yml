@@ -32,7 +32,7 @@ jobs:
         run: |
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
-          xz -ze9v caddy
+          xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: delete release
         env:
@@ -51,7 +51,7 @@ jobs:
         run: |
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
-          xz -ze9v caddy
+          xz -ze9vvv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: linux-amd64-v3
         env:
@@ -62,7 +62,7 @@ jobs:
         run: |
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
-          xz -ze9v caddy
+          xz -ze9vvvv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: linux-amd64-v4
         env:
@@ -73,7 +73,7 @@ jobs:
         run: |
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
-          xz -ze9v caddy
+          xz -ze9vvvvv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: upload
         env:
