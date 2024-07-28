@@ -35,6 +35,8 @@ jobs:
           xz -ze9v caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: delete release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           tag="$(grep 'github.com/caddyserver/caddy/v2' go.mod | awk '{print $2}')"
           gh release delete --yes \
