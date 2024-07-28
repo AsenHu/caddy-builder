@@ -79,6 +79,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          ls -l
           tag="$(grep 'github.com/caddyserver/caddy/v2' go.mod | awk '{print $2}')"
           gh release create "$tag" \
             --repo="${{github.repository}}" \
