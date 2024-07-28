@@ -76,7 +76,6 @@ jobs:
           xz -ze9v caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: upload
-        if: env.stop != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -98,5 +97,7 @@ jobs:
             --clobber \
             --repo="${{github.repository}}"
       - name: Approve PR
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr review --approve
+          gh pr review --approve || echo "It's not a PR."
