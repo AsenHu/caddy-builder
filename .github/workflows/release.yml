@@ -17,10 +17,11 @@ jobs:
     steps:
       - name: Check if only .github files are changed
         id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "${{ github.event.pull_request.url }}/files" | \
-            jq -r '.[].filename' > changed_files.txt
+          gh pr diff ${{ github.event.pull_request.html_url }} \
+            --name-only > changed_files.txt
           cat changed_files.txt
           if grep -vqE '^\.github/' changed_files.txt
           then
