@@ -20,7 +20,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr diff --name-only > changed_files.txt
+          gh pr diff --name-only \
+            --repo="${{github.repository}}" > changed_files.txt
           cat changed_files.txt
           if grep -vqE '^\.github/' changed_files.txt
           then
