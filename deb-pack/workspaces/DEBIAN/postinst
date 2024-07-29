@@ -1,0 +1,21 @@
+#!/bin/bash
+
+groupadd --system caddy
+useradd --system --gid caddy --create-home --home-dir /var/lib/caddy --shell /usr/sbin/nologin --comment "Caddy web server" caddy
+
+# config caddy
+mkdir -p /etc/caddy
+if [ ! -f /etc/caddy/Caddyfile ]
+then
+    echo -e ':2077\nrespond "Hello, world!"' > /etc/caddy/Caddyfile
+fi
+if ! /usr/bin/caddy validate --config /etc/caddy/Caddyfile
+then
+    mv -b /etc/caddy/Caddyfile /etc/caddy/Caddyfile.badconfig
+    echo -e ':2077\nrespond "Hello, world!"' > /etc/caddy/Caddyfile
+fi
+
+# start caddy
+systemctl daemon-reload
+systemctl enable caddy
+systemctl restart caddy
