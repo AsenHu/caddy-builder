@@ -106,6 +106,10 @@ jobs:
             --repo="${{github.repository}}" \
             --title="$tag" \
             --generate-notes
+          gh release create debian \
+            --repo="${{github.repository}}" \
+            --title="$tag" \
+            --latest=false || echo "It's already exists."
           gh release upload "$tag" "./caddy-linux-amd64-v1.xz" \
             --clobber \
             --repo="${{github.repository}}"
@@ -116,6 +120,18 @@ jobs:
             --clobber \
             --repo="${{github.repository}}"
           gh release upload "$tag" "./caddy-linux-amd64-v4.xz" \
+            --clobber \
+            --repo="${{github.repository}}"
+          gh release upload debian "./caddy-linux-amd64-v1.deb" \
+            --clobber \
+            --repo="${{github.repository}}"
+          gh release upload debian "./caddy-linux-amd64-v2.deb" \
+            --clobber \
+            --repo="${{github.repository}}"
+          gh release upload debian "./caddy-linux-amd64-v3.deb" \
+            --clobber \
+            --repo="${{github.repository}}"
+          gh release upload debian "./caddy-linux-amd64-v4.deb" \
             --clobber \
             --repo="${{github.repository}}"
       - name: Approve PR
