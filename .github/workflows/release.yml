@@ -35,7 +35,7 @@ jobs:
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
           sed -i "s/Version: .*/Version: $tag/" ./deb-pack/workspaces/DEBIAN/control
-          ls
+          mkdir -p ./deb-pack/workspaces/usr/bin
           cp -f ./caddy ./deb-pack/workspaces/usr/bin/caddy
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
