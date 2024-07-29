@@ -39,7 +39,7 @@ jobs:
           cp -f ./caddy ./deb-pack/workspaces/usr/bin/caddy
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
-          dpkg-deb --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb" -Zxz -Sextreme -z9 --verbose --debug
+          dpkg-deb -Zxz -Sextreme -z9 --verbose --debug --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb"
       - name: delete release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -59,10 +59,11 @@ jobs:
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
           sed -i "s/Version: .*/Version: $tag/" ./deb-pack/workspaces/DEBIAN/control
+          mkdir -p ./deb-pack/workspaces/usr/bin
           cp -f ./caddy ./deb-pack/workspaces/usr/bin/caddy
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
-          dpkg-deb --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb" -Zxz -Sextreme -z9 --verbose --debug
+          dpkg-deb -Zxz -Sextreme -z9 --verbose --debug --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb"
       - name: linux-amd64-v3
         env:
           GOOS: linux
@@ -74,10 +75,11 @@ jobs:
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
           sed -i "s/Version: .*/Version: $tag/" ./deb-pack/workspaces/DEBIAN/control
+          mkdir -p ./deb-pack/workspaces/usr/bin
           cp -f ./caddy ./deb-pack/workspaces/usr/bin/caddy
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
-          dpkg-deb --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb" -Zxz -Sextreme -z9 --verbose --debug
+          dpkg-deb -Zxz -Sextreme -z9 --verbose --debug --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb"
       - name: linux-amd64-v4
         env:
           GOOS: linux
@@ -89,10 +91,11 @@ jobs:
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
           sed -i "s/Version: .*/Version: $tag/" ./deb-pack/workspaces/DEBIAN/control
+          mkdir -p ./deb-pack/workspaces/usr/bin
           cp -f ./caddy ./deb-pack/workspaces/usr/bin/caddy
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
-          dpkg-deb --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb" -Zxz -Sextreme -z9 --verbose --debug
+          dpkg-deb -Zxz -Sextreme -z9 --verbose --debug --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb"
       - name: upload
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
