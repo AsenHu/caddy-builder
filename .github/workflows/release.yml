@@ -30,10 +30,14 @@ jobs:
           GOAMD64: v1
           CGO_ENABLED: 0
         run: |
+          tag="$(grep 'github.com/caddyserver/caddy/v2' go.mod | awk '{print $2}')"
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
+          ./deb-pack/control_gen.sh "$tag" > ./deb-pack/workspaces/DEBIAN/control
+          cp -f ./caddy ./deb-pack/workspaces/usr/bin/caddy
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
+          dpkg-deb --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb"
       - name: delete release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -49,10 +53,14 @@ jobs:
           GOAMD64: v2
           CGO_ENABLED: 0
         run: |
+          tag="$(grep 'github.com/caddyserver/caddy/v2' go.mod | awk '{print $2}')"
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
+          ./deb-pack/control_gen.sh "$tag" > ./deb-pack/workspaces/DEBIAN/control
+          cp -f ./caddy ./deb-pack/workspaces/usr/bin/caddy
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
+          dpkg-deb --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb"
       - name: linux-amd64-v3
         env:
           GOOS: linux
@@ -60,10 +68,14 @@ jobs:
           GOAMD64: v3
           CGO_ENABLED: 0
         run: |
+          tag="$(grep 'github.com/caddyserver/caddy/v2' go.mod | awk '{print $2}')"
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
+          ./deb-pack/control_gen.sh "$tag" > ./deb-pack/workspaces/DEBIAN/control
+          cp -f ./caddy ./deb-pack/workspaces/usr/bin/caddy
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
+          dpkg-deb --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb"
       - name: linux-amd64-v4
         env:
           GOOS: linux
@@ -71,14 +83,19 @@ jobs:
           GOAMD64: v4
           CGO_ENABLED: 0
         run: |
+          tag="$(grep 'github.com/caddyserver/caddy/v2' go.mod | awk '{print $2}')"
           go build -o caddy -ldflags "-s -w"
           echo "build finished"
+          ./deb-pack/control_gen.sh "$tag" > ./deb-pack/workspaces/DEBIAN/control
+          cp -f ./caddy ./deb-pack/workspaces/usr/bin/caddy
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
+          dpkg-deb --build ./deb-pack/workspaces "caddy-$GOOS-$GOARCH-$GOAMD64.deb"
       - name: upload
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          ls -l
           tag="$(grep 'github.com/caddyserver/caddy/v2' go.mod | awk '{print $2}')"
           gh release create "$tag" \
             --repo="${{github.repository}}" \
