@@ -10,38 +10,20 @@ on:
       - main
     paths-ignore:
       - '**.md'
+      - '.github/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if only .github files are changed
-        id: check
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr diff ${{ github.event.pull_request.html_url }} \
-            --name-only > changed_files.txt
-          cat changed_files.txt
-          if grep -vqE '^\.github/' changed_files.txt
-          then
-            echo "Only .github files are allowed to be changed."
-            echo "build=false" >> $GITHUB_ENV
-          else
-            echo "Should build."
-            echo "build=true" >> $GITHUB_ENV
-          fi
       - name: Checkout code
-        if: steps.check.outputs.build == 'true'
         uses: actions/checkout@v4
       - name: Set up Go
-        if: steps.check.outputs.build == 'true'
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
           check-latest: true
       - name: linux-amd64-v1
-        if: steps.check.outputs.build == 'true'
         env:
           GOOS: linux
           GOARCH: amd64
@@ -53,7 +35,6 @@ jobs:
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: delete release
-        if: steps.check.outputs.build == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -62,7 +43,6 @@ jobs:
             --repo="${{github.repository}}" \
             --cleanup-tag "$tag" || echo "Nothing to delete."
       - name: linux-amd64-v2
-        if: steps.check.outputs.build == 'true'
         env:
           GOOS: linux
           GOARCH: amd64
@@ -74,7 +54,6 @@ jobs:
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: linux-amd64-v3
-        if: steps.check.outputs.build == 'true'
         env:
           GOOS: linux
           GOARCH: amd64
@@ -86,7 +65,6 @@ jobs:
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: linux-amd64-v4
-        if: steps.check.outputs.build == 'true'
         env:
           GOOS: linux
           GOARCH: amd64
@@ -98,7 +76,6 @@ jobs:
           xz -ze9vv caddy
           mv caddy.xz "caddy-$GOOS-$GOARCH-$GOAMD64.xz"
       - name: upload
-        if: steps.check.outputs.build == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
