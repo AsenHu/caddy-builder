@@ -2,5 +2,12 @@
 
 rm -rvf /etc/caddy /var/lib/caddy /usr/bin/caddy /etc/systemd/system/caddy.service
 
-userdel -r caddy
-groupdel caddy
+if getent passwd caddy > /dev/null
+then
+    userdel -r caddy
+fi
+
+if getent group caddy > /dev/null
+then
+    groupdel caddy
+fi
