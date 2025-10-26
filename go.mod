@@ -1,4 +1,4 @@
-module caddy
+module github.com/AsenHu/caddy-builder
 
 go 1.21.6
 
